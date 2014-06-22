@@ -1,4 +1,4 @@
-package it.breex.bus.impl;
+package it.breex.bus.event;
 
 public interface EventResponse<O> {
 

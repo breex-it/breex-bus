@@ -1,6 +1,9 @@
 package it.breex.bus.impl;
 
-import it.breex.bus.MultiMap;
+import it.breex.bus.event.EventData;
+import it.breex.bus.event.EventHandler;
+import it.breex.bus.event.EventId;
+import it.breex.bus.event.EventResponse;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +16,6 @@ public class SynchEventManager extends AbstractEventManager {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final String nodeId = UUID.randomUUID().toString();
-	private final MultiMap<String, String> eventsPerNode = new MultiMapImpl<>();
 	private final Map<String, EventHandler> eventHandlers = new HashMap<>();
 
 	@Override
@@ -34,7 +36,6 @@ public class SynchEventManager extends AbstractEventManager {
 	@Override
 	public <I, O> void register(String eventName, EventHandler<I, O> eventHandler) {
 		eventHandlers.put(eventName, eventHandler);
-		eventsPerNode.put(eventName, nodeId);
 	}
 
 }

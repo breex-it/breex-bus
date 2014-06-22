@@ -1,10 +1,10 @@
 package it.breex.bus.impl.jms;
 
+import it.breex.bus.event.EventData;
+import it.breex.bus.event.EventHandler;
+import it.breex.bus.event.EventId;
+import it.breex.bus.event.EventResponse;
 import it.breex.bus.impl.AbstractEventManager;
-import it.breex.bus.impl.EventData;
-import it.breex.bus.impl.EventHandler;
-import it.breex.bus.impl.EventId;
-import it.breex.bus.impl.EventResponse;
 
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;

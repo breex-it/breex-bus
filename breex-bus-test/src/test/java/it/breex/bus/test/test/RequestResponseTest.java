@@ -2,9 +2,9 @@ package it.breex.bus.test.test;
 
 import static org.junit.Assert.assertEquals;
 import it.breex.bus.BreexBus;
-import it.breex.bus.impl.EventData;
-import it.breex.bus.impl.EventHandler;
-import it.breex.bus.impl.EventResponse;
+import it.breex.bus.event.EventData;
+import it.breex.bus.event.EventHandler;
+import it.breex.bus.event.EventResponse;
 import it.breex.bus.test.BaseBBTest;
 import it.breex.bus.test.config.TestCaseConfig;
 

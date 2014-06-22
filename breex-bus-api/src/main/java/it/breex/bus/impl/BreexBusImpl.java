@@ -2,6 +2,8 @@ package it.breex.bus.impl;
 
 import it.breex.bus.BreexBus;
 import it.breex.bus.EventManager;
+import it.breex.bus.event.EventHandler;
+import it.breex.bus.event.EventResponse;
 
 public class BreexBusImpl implements BreexBus {
 

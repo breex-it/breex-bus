@@ -1,6 +1,9 @@
 package it.breex.bus.impl;
 
 import it.breex.bus.EventManager;
+import it.breex.bus.event.EventData;
+import it.breex.bus.event.EventHandler;
+import it.breex.bus.event.EventResponse;
 
 import java.util.UUID;
 

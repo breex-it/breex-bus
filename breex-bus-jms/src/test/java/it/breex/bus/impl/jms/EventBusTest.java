@@ -3,10 +3,10 @@ package it.breex.bus.impl.jms;
 import static org.junit.Assert.assertEquals;
 import it.breex.bus.BaseTest;
 import it.breex.bus.BreexBus;
+import it.breex.bus.event.EventData;
+import it.breex.bus.event.EventHandler;
+import it.breex.bus.event.EventResponse;
 import it.breex.bus.impl.BreexBusImpl;
-import it.breex.bus.impl.EventData;
-import it.breex.bus.impl.EventHandler;
-import it.breex.bus.impl.EventResponse;
 import it.breex.bus.impl.jms.JmsEventManager;
 
 import java.util.Date;

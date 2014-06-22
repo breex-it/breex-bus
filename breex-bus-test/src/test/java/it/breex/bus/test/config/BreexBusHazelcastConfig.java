@@ -24,6 +24,9 @@ public class BreexBusHazelcastConfig {
 
 		for (int i = 0; i < 4; i++) {
 			Config cfg = new Config();
+
+			cfg.setProperty("hazelcast.logging.type", "slf4j");
+
 			NetworkConfig network = cfg.getNetworkConfig();
 			network.setPort(5701);
 			network.setPortAutoIncrement(true);

@@ -1,7 +1,7 @@
 package it.breex.bus;
 
-import it.breex.bus.impl.EventHandler;
-import it.breex.bus.impl.EventResponse;
+import it.breex.bus.event.EventHandler;
+import it.breex.bus.event.EventResponse;
 
 public interface EventManager {
 
