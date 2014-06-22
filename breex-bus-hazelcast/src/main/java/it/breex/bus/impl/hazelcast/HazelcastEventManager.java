@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,9 +18,6 @@ import com.hazelcast.core.EntryEvent;
 import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ITopic;
-import com.hazelcast.core.MemberAttributeEvent;
-import com.hazelcast.core.MembershipEvent;
-import com.hazelcast.core.MembershipListener;
 import com.hazelcast.core.Message;
 import com.hazelcast.core.MessageListener;
 import com.hazelcast.core.MultiMap;
@@ -38,29 +34,10 @@ public class HazelcastEventManager extends AbstractEventManager {
 	private final Map<String, EventResponse> responseHandlers = new ConcurrentHashMap<>();
 	private final MultiMap<String, String> nodeEventsMap;
 	private final NodeIterator nodeIterator;
-	private final ExecutorService executorService;
 
-	public HazelcastEventManager(HazelcastInstance hazelcastInstance, ExecutorService executorService) {
+	public HazelcastEventManager(HazelcastInstance hazelcastInstance) {
 		this.hazelcastInstance = hazelcastInstance;
 
-		this.hazelcastInstance.getCluster().addMembershipListener(new MembershipListener() {
-
-			@Override
-			public void memberRemoved(MembershipEvent membershipEvent) {
-				onMemberChangedEvent();
-			}
-
-			@Override
-			public void memberAttributeChanged(MemberAttributeEvent memberAttributeEvent) {
-			}
-
-			@Override
-			public void memberAdded(MembershipEvent membershipEvent) {
-				onMemberChangedEvent();
-			}
-		});
-
-		this.executorService = executorService;
 		// nodeId = hazelcastInstance.getCluster().getLocalMember().getUuid();
 		nodeEventsMap = this.hazelcastInstance.getMultiMap(NODES_MAP);
 		nodeIterator = new NodeIterator(nodeEventsMap);
@@ -148,10 +125,6 @@ public class HazelcastEventManager extends AbstractEventManager {
 
 	private String getResponseTopicName(String eventName, String nodeId) {
 		return RESPONSE_QUEUE_PREFIX + nodeId + "-" + eventName;
-	}
-
-	private void onMemberChangedEvent() {
-		logger.info("Member changement event");
 	}
 
 }

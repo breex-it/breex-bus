@@ -10,7 +10,7 @@
 		<module>breex-bus-api</module>
 		<module>breex-bus-hazelcast</module>
 		<module>breex-bus-jms</module>
-		<module>breex-bus-test</module>		
+		<module>breex-bus-test</module>
 	</modules>
 
 	<properties>
@@ -18,6 +18,7 @@
 		<spring.version>4.0.2.RELEASE</spring.version>
 		<slf4j.version>1.7.5</slf4j.version>
 		<jetty.version>9.1.5.v20140505</jetty.version>
+		<activemq.version>5.10.0</activemq.version>
 	</properties>
 
 	<dependencyManagement>
@@ -57,6 +58,18 @@
 				<groupId>org.eclipse.jetty.aggregate</groupId>
 				<artifactId>jetty-all</artifactId>
 				<version>${jetty.version}</version>
+			</dependency>
+
+			<!-- ActiveMQ broker -->
+			<dependency>
+				<groupId>org.apache.activemq</groupId>
+				<artifactId>activemq-broker</artifactId>
+				<version>${activemq.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.activemq</groupId>
+				<artifactId>activemq-spring</artifactId>
+				<version>${activemq.version}</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>

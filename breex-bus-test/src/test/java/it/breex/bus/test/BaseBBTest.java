@@ -13,7 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  ******************************************************************************/
-package it.breex.eventbus.test;
+package it.breex.bus.test;
+
+import it.breex.bus.test.config.SpringConfig;
+import it.breex.bus.test.config.TestCaseConfig;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
@@ -33,7 +36,7 @@ import org.junit.runners.Parameterized;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 
 @RunWith(Parameterized.class)
 public abstract class BaseBBTest {
@@ -52,7 +55,7 @@ public abstract class BaseBBTest {
 	@Parameterized.Parameters(name="{0}")
 	public static Collection<Object[]> generateData() {
 		if (CONTEXT == null) {
-			CONTEXT = new ClassPathXmlApplicationContext("spring-context.xml"); //$NON-NLS-1$
+			CONTEXT = new AnnotationConfigApplicationContext(SpringConfig.class); //$NON-NLS-1$
 		}
 
 		List<Object[]> parameters = new ArrayList<Object[]>();

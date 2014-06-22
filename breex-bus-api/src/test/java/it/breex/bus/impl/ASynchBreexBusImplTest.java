@@ -3,10 +3,6 @@ package it.breex.bus.impl;
 import static org.junit.Assert.assertEquals;
 import it.breex.bus.BaseTest;
 import it.breex.bus.BreexBus;
-import it.breex.bus.impl.AsynchBreexBus;
-import it.breex.bus.impl.EventData;
-import it.breex.bus.impl.EventHandler;
-import it.breex.bus.impl.EventResponse;
 
 import java.util.Date;
 import java.util.Random;
@@ -36,7 +32,7 @@ public class ASynchBreexBusImplTest extends BaseTest {
 			}
 		});
 
-		int threadsQuantity = 10000;
+		int threadsQuantity = 1000;
 		final CountDownLatch countDownLatch = new CountDownLatch(threadsQuantity);
 
 		Date now = new Date();

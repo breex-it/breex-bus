@@ -7,13 +7,11 @@ import it.breex.bus.impl.BreexBusImpl;
 import it.breex.bus.impl.EventData;
 import it.breex.bus.impl.EventHandler;
 import it.breex.bus.impl.EventResponse;
-import it.breex.bus.impl.hazelcast.HazelcastEventManager;
 
 import java.util.Date;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
@@ -33,7 +31,7 @@ public class EventBusTest extends BaseTest {
 
 	@Test
 	public void testEventReplyOnSingleBus() throws InterruptedException {
-		final BreexBus eventBus = new BreexBusImpl(new HazelcastEventManager(hazelcastInstanceOne, Executors.newFixedThreadPool(10)));
+		final BreexBus eventBus = new BreexBusImpl(new HazelcastEventManager(hazelcastInstanceOne));
 
 		final String eventName = "testEvent-" + UUID.randomUUID().toString();
 
