@@ -13,7 +13,7 @@
 		http://www.springframework.org/schema/util/spring-util.xsd">
 
 	<context:annotation-config />
-	<context:component-scan base-package="it.breex.eventbus" />
+	<context:component-scan base-package="it.breex.bus" />
 	<context:property-placeholder location="classpath:spring-context.properties" />
 
 </beans>

@@ -1,8 +1,12 @@
 package it.breex.eventbus.impl;
 
 import static org.junit.Assert.assertEquals;
-import it.breex.eventbus.BaseTest;
-import it.breex.eventbus.BreexBus;
+import it.breex.bus.BaseTest;
+import it.breex.bus.BreexBus;
+import it.breex.bus.impl.EventData;
+import it.breex.bus.impl.EventHandler;
+import it.breex.bus.impl.EventResponse;
+import it.breex.bus.impl.SynchBreexBus;
 
 import java.util.Date;
 import java.util.Random;

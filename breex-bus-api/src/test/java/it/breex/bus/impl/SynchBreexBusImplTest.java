@@ -1,30 +1,29 @@
-package it.breex.eventbus.impl;
+package it.breex.bus.impl;
 
 import static org.junit.Assert.assertEquals;
 import it.breex.bus.BaseTest;
 import it.breex.bus.BreexBus;
-import it.breex.bus.impl.AsynchBreexBus;
 import it.breex.bus.impl.EventData;
 import it.breex.bus.impl.EventHandler;
 import it.breex.bus.impl.EventResponse;
+import it.breex.bus.impl.SynchBreexBus;
 
 import java.util.Date;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.Executors;
 
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ASynchBreexBusImplTest extends BaseTest {
+public class SynchBreexBusImplTest extends BaseTest {
 
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
 	@Test
 	public void testEventReply() throws InterruptedException {
-		final BreexBus eventBus = new AsynchBreexBus(Executors.newFixedThreadPool(10));
+		final BreexBus eventBus = new SynchBreexBus();
 
 		final String eventName = "testEvent-" + UUID.randomUUID().toString();
 

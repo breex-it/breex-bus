@@ -12,6 +12,16 @@
 	<packaging>jar</packaging>
 
 	<dependencies>  
+	  <dependency>
+      <groupId>it.breex</groupId>
+      <artifactId>breex-bus-hazelcast</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+        <dependency>
+      <groupId>it.breex</groupId>
+      <artifactId>breex-bus-jms</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>

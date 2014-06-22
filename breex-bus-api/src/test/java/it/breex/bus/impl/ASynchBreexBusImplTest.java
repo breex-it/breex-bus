@@ -1,4 +1,4 @@
-package it.breex.eventbus.impl;
+package it.breex.bus.impl;
 
 import static org.junit.Assert.assertEquals;
 import it.breex.bus.BaseTest;
