@@ -3,7 +3,8 @@ package it.breex.bus.impl;
 import it.breex.bus.BreexBus;
 import it.breex.bus.EventManager;
 import it.breex.bus.event.EventHandler;
-import it.breex.bus.event.EventResponse;
+import it.breex.bus.event.RequestEvent;
+import it.breex.bus.event.ResponseEvent;
 
 public class BreexBusImpl implements BreexBus {
 
@@ -15,13 +16,14 @@ public class BreexBusImpl implements BreexBus {
 	}
 
 	@Override
-	public final <I, O> void register(final String eventName, final EventHandler<I, O> eventHandler) {
-		eventManager.register(eventName, eventHandler);
+	public <I, O> void publish(String eventName, EventHandler<ResponseEvent<O>> eventHandler, I message) {
+		eventManager.publish(eventName, eventHandler, message);
 	}
 
 	@Override
-	public final <I, O> void publish(String eventName, EventResponse<O> eventResponse, I args) {
-		eventManager.publish(eventName, eventResponse, args);
+	public <I, O> void register(String eventName, EventHandler<RequestEvent<I, O>> eventHandler) {
+		eventManager.register(eventName, eventHandler);
 	}
+
 
 }

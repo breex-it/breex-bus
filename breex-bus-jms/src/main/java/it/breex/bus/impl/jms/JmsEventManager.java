@@ -1,17 +1,16 @@
 package it.breex.bus.impl.jms;
 
+import it.breex.bus.event.AbstractResponseEvent;
 import it.breex.bus.event.EventData;
 import it.breex.bus.event.EventHandler;
-import it.breex.bus.event.EventId;
-import it.breex.bus.event.EventResponse;
+import it.breex.bus.event.RequestEvent;
 import it.breex.bus.impl.AbstractEventManager;
 
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
+import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.MessageConsumer;
@@ -21,15 +20,10 @@ import javax.jms.ObjectMessage;
 import javax.jms.Queue;
 import javax.jms.Session;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 public class JmsEventManager extends AbstractEventManager {
 
 	private final static String DEFAULT_REQUEST_QUEUE = "breexDefaulRequestQueue";
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final String nodeId = UUID.randomUUID().toString();
-	private final ConcurrentMap<String, EventResponse> responseHandlers = new ConcurrentHashMap<>();
 	private final boolean transacted = false;
 	private final int acknowledgeMode = Session.AUTO_ACKNOWLEDGE;
 	private final Connection jmsConnection;
@@ -54,10 +48,13 @@ public class JmsEventManager extends AbstractEventManager {
 				public void onMessage(Message message) {
 					try {
 						EventData<?> eventData = (EventData<?>) ((ObjectMessage) message).getObject();
-						logger.debug("Event Response received. Event name: [{}], sender id: [{}]", eventData.eventId.eventName,
-								eventData.eventId.nodeId);
-						EventResponse eventResponse = responseHandlers.remove(eventData.eventId.eventId);
-						processResponse(eventData, eventResponse);
+						getLogger().debug("Event Response received. Event name: [{}], sender id: [{}]", eventData.getName(),
+								eventData.getSenderId());
+
+						//logger.debug("Event Response received. Event name: [{}], sender id: [{}]", eventData.eventId.eventName, eventData.eventId.nodeId);
+						AbstractResponseEvent responseEvent = new AbstractResponseEvent(eventData) {
+						};
+						processResponse(responseEvent, getResponseHandlers().remove(eventData.getId()));
 					} catch (JMSException e) {
 						new RuntimeException(e);
 					}
@@ -74,10 +71,21 @@ public class JmsEventManager extends AbstractEventManager {
 		return nodeId;
 	}
 
-	@Override
-	public <I,O> void register(final String eventName, final EventHandler<I,O> eventHandler) {
 
-		logger.debug("Registering event. Event name: [{}]", eventName);
+	@Override
+	protected <I, O> void prepareResponse(EventData<I> requestEventData, EventData<O> responseEventData) {
+		try {
+			Message responseMessage = session.createObjectMessage(responseEventData);
+			responseMessageProducer.send((Destination) requestEventData.getTransportData(), responseMessage);
+		} catch (JMSException e) {
+			new RuntimeException(e);
+		}
+
+	}
+
+	@Override
+	protected <I, O> void registerCallback(String eventName, EventHandler<RequestEvent<I, O>> eventHandler) {
+		getLogger().debug("Registering event. Event name: [{}]", eventName);
 		MessageConsumer eventConsumer;
 		try {
 			eventConsumer = session.createConsumer(requestQueue, "JMSCorrelationID='" + eventName + "'");
@@ -87,12 +95,10 @@ public class JmsEventManager extends AbstractEventManager {
 					EventData<I> requestEventData;
 					try {
 						requestEventData = (EventData<I>) ((ObjectMessage) message).getObject();
-						logger.debug("Received event. Event name: [{}] CorrelationID: [{}]", requestEventData.eventId.eventName,
+
+						getLogger().debug("Received event. Event name: [{}] CorrelationID: [{}]", requestEventData.getName(),
 								message.getJMSCorrelationID());
-						EventData<O> responseEventData = processRequest(requestEventData, eventHandler);
-						Message responseMessage = session.createObjectMessage(responseEventData);
-						responseMessage.setJMSCorrelationID(message.getJMSCorrelationID());
-						responseMessageProducer.send(message.getJMSReplyTo(), responseMessage);
+						processRequest(requestEventData);
 					} catch (JMSException e) {
 						new RuntimeException(e);
 					}
@@ -104,14 +110,11 @@ public class JmsEventManager extends AbstractEventManager {
 	}
 
 	@Override
-	public <I,O> void publish(String eventName, EventResponse<O> eventResponse, I args ) {
-		EventId eventId = new EventId(nodeId, eventName, UUID.randomUUID().toString());
-		EventData<I> eventData = new EventData<>(eventId, args);
-		logger.debug("Publish event. Event name: [{}], sender id: [{}]", eventId.eventName, eventId.nodeId);
-		responseHandlers.put(eventId.eventId, eventResponse);
+	protected <I> void prepareRequest(EventData<I> eventData) {
 		try {
+			eventData.setTransportData(responseQueue);
 			ObjectMessage message = session.createObjectMessage(eventData);
-			message.setJMSCorrelationID(eventName);
+			message.setJMSCorrelationID(eventData.getName());
 			message.setJMSReplyTo(responseQueue);
 			requestMessageProducer.send(message);
 		} catch (JMSException e) {

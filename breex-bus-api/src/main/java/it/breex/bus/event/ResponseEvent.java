@@ -1,7 +1,5 @@
 package it.breex.bus.event;
 
-public interface EventResponse<O> {
-
-	void receive(O response);
+public interface ResponseEvent<O> extends Event<O> {
 
 }

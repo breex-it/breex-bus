@@ -1,7 +1,7 @@
 package it.breex.bus.event;
 
-public interface EventHandler<I,O> {
+public interface EventHandler<T extends Event<?>> {
 
-	O process(EventData<I> eventData);
+	void process(T event);
 
 }

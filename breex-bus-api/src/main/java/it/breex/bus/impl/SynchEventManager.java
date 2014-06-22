@@ -1,22 +1,15 @@
 package it.breex.bus.impl;
 
+import it.breex.bus.event.AbstractResponseEvent;
 import it.breex.bus.event.EventData;
 import it.breex.bus.event.EventHandler;
-import it.breex.bus.event.EventId;
-import it.breex.bus.event.EventResponse;
+import it.breex.bus.event.RequestEvent;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SynchEventManager extends AbstractEventManager {
 
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	private final String nodeId = UUID.randomUUID().toString();
-	private final Map<String, EventHandler> eventHandlers = new HashMap<>();
 
 	@Override
 	public String getLocalNodeId() {
@@ -24,18 +17,19 @@ public class SynchEventManager extends AbstractEventManager {
 	}
 
 	@Override
-	public <I, O> void publish(String eventName, EventResponse<O> eventResponse, I args) {
-		EventId eventId = new EventId(nodeId, eventName, randomUniqueId());
-		EventData<I> eventData = new EventData<>(eventId, args);
-		logger.debug("Publish event. Event name: [{}], sender id: [{}]", eventId.eventName, eventId.nodeId);
-
-		EventData<O> responseEventData = processRequest(eventData, eventHandlers.get(eventName));
-		processResponse(responseEventData, eventResponse);
+	protected <I> void prepareRequest(final EventData<I> eventData) {
+		processRequest(eventData);
 	}
 
 	@Override
-	public <I, O> void register(String eventName, EventHandler<I, O> eventHandler) {
-		eventHandlers.put(eventName, eventHandler);
+	protected <I, O> void prepareResponse(EventData<I> requestEventData, final EventData<O> responseEventData) {
+		AbstractResponseEvent<I, O> responseEvent = new AbstractResponseEvent<I, O>(responseEventData) {
+		};
+		processResponse(responseEvent, getResponseHandlers().remove(requestEventData.getId()));
+	}
+
+	@Override
+	protected <I, O> void registerCallback(String eventName, EventHandler<RequestEvent<I, O>> eventHandler) {
 	}
 
 }

@@ -2,9 +2,9 @@ package it.breex.bus.test.benchmark;
 
 import static org.junit.Assert.assertEquals;
 import it.breex.bus.BreexBus;
-import it.breex.bus.event.EventData;
 import it.breex.bus.event.EventHandler;
-import it.breex.bus.event.EventResponse;
+import it.breex.bus.event.RequestEvent;
+import it.breex.bus.event.ResponseEvent;
 import it.breex.bus.test.BaseBBTest;
 import it.breex.bus.test.config.TestCaseConfig;
 
@@ -56,11 +56,12 @@ public class ClusteredEventBusTest extends BaseBBTest {
 		}
 	}
 
-	class HelloEventHandler implements EventHandler<String, String> {
+	class HelloEventHandler implements EventHandler<RequestEvent<String, String>> {
 		@Override
-		public String process(EventData<String> eventData) {
-			getLogger().debug("message: [{}]", eventData.args);
-			return eventData.args + eventData.args;
+		public void process(RequestEvent<String, String> event) {
+			String message = event.getEventData().getMessage();
+			getLogger().debug("message: [{}]", message);
+			event.reply(message + message);
 		}
 	}
 
@@ -79,14 +80,16 @@ public class ClusteredEventBusTest extends BaseBBTest {
 		@Override
 		public void run() {
 			final String message = "hello world [" + new Random().nextInt() + "]";
-			eventBus.publish(eventName, new EventResponse<String>() {
+			eventBus.publish(eventName, new EventHandler<ResponseEvent<String>>() {
+
 				@Override
-				public void receive(String response) {
-					getLogger().debug("Received reply : [{}]", response);
-					assertEquals(message + message, response);
+				public void process(ResponseEvent<String> event) {
+					getLogger().debug("Received reply : [{}]", event.getEventData().getMessage());
+					assertEquals(message + message, event.getEventData().getMessage());
 					countDownLatch.countDown();
 				}
 			}, message);
+
 		}
 	}
 }

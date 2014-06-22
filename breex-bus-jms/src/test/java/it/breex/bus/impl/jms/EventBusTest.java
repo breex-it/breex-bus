@@ -3,11 +3,10 @@ package it.breex.bus.impl.jms;
 import static org.junit.Assert.assertEquals;
 import it.breex.bus.BaseTest;
 import it.breex.bus.BreexBus;
-import it.breex.bus.event.EventData;
 import it.breex.bus.event.EventHandler;
-import it.breex.bus.event.EventResponse;
+import it.breex.bus.event.RequestEvent;
+import it.breex.bus.event.ResponseEvent;
 import it.breex.bus.impl.BreexBusImpl;
-import it.breex.bus.impl.jms.JmsEventManager;
 
 import java.util.Date;
 import java.util.Random;
@@ -35,54 +34,41 @@ public class EventBusTest extends BaseTest {
 
 		final String eventName = "testEvent-" + UUID.randomUUID().toString();
 
-		eventBus.register(eventName, new HelloEventHandler());
+		eventBus.register(eventName, new EventHandler<RequestEvent<String, String>>() {
 
-		int threadsQuantity = 1000;
+			@Override
+			public void process(RequestEvent<String, String> event) {
+				String value = event.getEventData().getMessage();
+				getLogger().debug("message: [{}]", value);
+				event.reply(value + value);
+			}
+		});
+
+		int threadsQuantity = 1;
 		final CountDownLatch countDownLatch = new CountDownLatch(threadsQuantity);
 
 		Date now = new Date();
 
 		for (int i=0; i<threadsQuantity; i++) {
-			new Thread(new AsynchHelloSender(eventBus, eventName, countDownLatch)).start();
-		}
-
-		countDownLatch.await(10, TimeUnit.SECONDS);
-		assertEquals(0l, countDownLatch.getCount());
-		logger.info("execution time for [{}] events: {}ms", threadsQuantity, new Date().getTime() - now.getTime());
-
-	}
-
-	class HelloEventHandler implements EventHandler<String, String> {
-		@Override
-		public String process(EventData<String> eventData) {
-			logger.debug("message: [{}]", eventData.args);
-			return eventData.args + eventData.args;
-		}
-	}
-
-	class AsynchHelloSender implements Runnable {
-
-		private final String eventName;
-		private final BreexBus eventBus;
-		private final CountDownLatch countDownLatch;
-
-		AsynchHelloSender(BreexBus eventBus, String eventName, CountDownLatch countDownLatch) {
-			this.eventBus = eventBus;
-			this.eventName = eventName;
-			this.countDownLatch = countDownLatch;
-		}
-
-		@Override
-		public void run() {
-			final String message = "hello world [" + new Random().nextInt() + "]";
-			eventBus.publish(eventName, new EventResponse<String>() {
+			new Thread(new Runnable() {
 				@Override
-				public void receive(String response) {
-					logger.debug("Received reply : [{}]", response);
-					assertEquals(message + message, response);
-					countDownLatch.countDown();
+				public void run() {
+					final String message = "hello world [" + new Random().nextInt() + "]";
+					eventBus.publish(eventName, new EventHandler<ResponseEvent<String>>() {
+
+						@Override
+						public void process(ResponseEvent<String> event) {
+							getLogger().debug("Received reply : [{}]", event.getEventData().getMessage());
+							assertEquals(message + message, event.getEventData().getMessage());
+							countDownLatch.countDown();
+						}
+					}, message);
 				}
-			}, message);
+			}).start();
 		}
+		countDownLatch.await(5, TimeUnit.SECONDS);
+		assertEquals(0l, countDownLatch.getCount());
+		getLogger().info("execution time for [{}] events: {}ms", threadsQuantity, new Date().getTime() - now.getTime());
 	}
+
 }
