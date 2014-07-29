@@ -8,8 +8,6 @@ import it.breex.bus.impl.AbstractEventManager;
 
 import java.util.UUID;
 
-import com.hazelcast.core.EntryEvent;
-import com.hazelcast.core.EntryListener;
 import com.hazelcast.core.HazelcastInstance;
 import com.hazelcast.core.ITopic;
 import com.hazelcast.core.Message;
@@ -24,47 +22,20 @@ public class HazelcastEventManager extends AbstractEventManager {
 	private final String nodeId = UUID.randomUUID().toString();
 	private final HazelcastInstance hazelcastInstance;
 	private final MultiMap<String, String> nodeEventsMap;
-	private final NodeIterator nodeIterator;
+	private final NodeIterator<String, String> nodeIterator;
 
 	public HazelcastEventManager(HazelcastInstance hazelcastInstance) {
 		this.hazelcastInstance = hazelcastInstance;
 
 		// nodeId = hazelcastInstance.getCluster().getLocalMember().getUuid();
 		nodeEventsMap = this.hazelcastInstance.getMultiMap(NODES_MAP);
-		nodeIterator = new NodeIterator(nodeEventsMap);
-		nodeEventsMap.addEntryListener(new EntryListener<String, String>() {
+		nodeIterator = new NodeIterator<>(nodeEventsMap);
 
-			@Override
-			public void entryUpdated(EntryEvent<String, String> event) {
-				refreshIterator();
-			}
-
-			@Override
-			public void entryRemoved(EntryEvent<String, String> event) {
-				refreshIterator();
-			}
-
-			@Override
-			public void entryEvicted(EntryEvent<String, String> event) {
-				refreshIterator();
-			}
-
-			@Override
-			public void entryAdded(EntryEvent<String, String> event) {
-				refreshIterator();
-			}
-		}, false);
-
-		refreshIterator();
 	}
 
 	@Override
 	public String getLocalNodeId() {
 		return nodeId;
-	}
-
-	private synchronized void refreshIterator() {
-		nodeIterator.refreshIterators();
 	}
 
 	private String getRequestTopicName(String eventName, String nodeId) {
